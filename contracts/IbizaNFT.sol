@@ -54,14 +54,47 @@ contract IbizaNFT is Context, AccessControlEnumerable, ERC721Enumerable, ERC721B
      *
      * - `tokenId` must exist.
      */
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal {
+/*    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal {
         require(_exists(tokenId), "IbizaNFT: URI set of nonexistent token");
-        _tokenURIs[tokenId] = _tokenURI;
+        super.tokenURI[tokenId] = _tokenURI;
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         require(_exists(tokenId), "IbizaNFT: URI query for nonexistent token");
         return super.tokenURI(tokenId);
+    }
+*/
+    /**
+     * @dev See {IERC721Metadata-tokenURI}.
+     */
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        require(_exists(tokenId), "IbizaNFT: URI query for nonexistent token");
+
+        string memory _tokenURI = _tokenURIs[tokenId];
+        string memory base = _baseURI();
+
+        // If there is no base URI, return the token URI.
+        if (bytes(base).length == 0) {
+            return _tokenURI;
+        }
+        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+        if (bytes(_tokenURI).length > 0) {
+            return string(abi.encodePacked(base, _tokenURI));
+        }
+
+        return super.tokenURI(tokenId);
+    }
+
+    /**
+     * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+        require(_exists(tokenId), "IbizaNFT: URI set of nonexistent token");
+        _tokenURIs[tokenId] = _tokenURI;
     }
 
     function mint(address to) public virtual {
@@ -78,9 +111,9 @@ contract IbizaNFT is Context, AccessControlEnumerable, ERC721Enumerable, ERC721B
         _tokenIdTracker.increment();
     }
 
-    function mintComplete(address recipient, uint256 tokenId, string memory _tokenURI) public onlyRole(MINTER_ROLE) {
+    function mintComplete(address recipient, uint256 tokenId, string memory _TokenURI) public onlyRole(MINTER_ROLE) {
         _mint(recipient, tokenId);
-        _setTokenURI(tokenId, _tokenURI);
+        _setTokenURI(tokenId, _TokenURI);
         _tokenIdTracker.increment();
     }
 

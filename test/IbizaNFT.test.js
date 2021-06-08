@@ -79,7 +79,20 @@ contract('IbizaNFT', function (accounts) {
       expect(await this.token.balanceOf(other)).to.be.bignumber.equal('1');
       expect(await this.token.ownerOf(tokenId)).to.equal(other);
 
-      expect(await this.token.tokenURI(tokenId)).to.equal(baseURI + tokenId);
+      expect(await this.token.tokenURI(tokenId)).to.equal(baseURI + "pippo");
+    });
+
+    it('deployer can mint tokens complete with no base URI', async function () {
+      const tokenId = new BN('12346');
+
+      await this.token.setURIBase("");
+      const receipt = await this.token.mintComplete(other, tokenId, "https://www.gino.com/pippo", { from: deployer });
+      expectEvent(receipt, 'Transfer', { from: ZERO_ADDRESS, to: other, tokenId });
+
+      expect(await this.token.balanceOf(other)).to.be.bignumber.equal('1');
+      expect(await this.token.ownerOf(tokenId)).to.equal(other);
+
+      expect(await this.token.tokenURI(tokenId)).to.equal("https://www.gino.com/pippo");
     });
 
     it('other accounts cannot mint tokens', async function () {
